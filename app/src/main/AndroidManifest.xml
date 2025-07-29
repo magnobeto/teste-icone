@@ -12,22 +12,20 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyProjectWithLeo"
         tools:targetApi="31">
+
+        <!-- Atividade real (sem ícone no launcher) -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.MyProjectWithLeo">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:theme="@style/Theme.MyProjectWithLeo" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
+        <!-- Alias padrão -->
         <activity-alias
             android:name=".DefaultIconActivity"
-            android:enabled="false"
+            android:enabled="true"
             android:exported="true"
             android:icon="@mipmap/ic_launcher"
+            android:label="@string/app_name"
             android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -35,18 +33,20 @@
             </intent-filter>
         </activity-alias>
 
-
+        <!-- Alias alternativo -->
         <activity-alias
             android:name=".FlaIconActivity"
             android:enabled="false"
             android:exported="true"
             android:icon="@drawable/ic_dev_tranquilao"
+            android:label="@string/app_name"
             android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity-alias>
+
     </application>
 
 </manifest>

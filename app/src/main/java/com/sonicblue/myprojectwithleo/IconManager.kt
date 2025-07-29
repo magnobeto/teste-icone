@@ -5,25 +5,41 @@ import android.content.Context
 import android.content.pm.PackageManager
 
 class IconManager {
-    fun setAppIcon(context: Context, teamIconResourceId: Int) {
-        val componentName = ComponentName(
-            context.packageName,
-            "com.sonicblue.myprojectwithleo.MainActivity"
-        )
 
-        val packageManager = context.packageManager
-        packageManager.setComponentEnabledSetting(
-            componentName,
-            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+    private val allAliases = listOf(
+        "com.sonicblue.myprojectwithleo.DefaultIconActivity",
+        "com.sonicblue.myprojectwithleo.FlaIconActivity"
+        // Adicione mais aliases aqui, se tiver
+    )
+
+    fun setAppIcon(context: Context, teamIconResourceId: Int) {
+        val pm = context.packageManager
+
+        // Desativa a MainActivity
+        val mainActivity = ComponentName(context, "com.sonicblue.myprojectwithleo.MainActivity")
+        pm.setComponentEnabledSetting(
+            mainActivity,
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
             PackageManager.DONT_KILL_APP
         )
 
-        val teamIconComponent = ComponentName(
-            context.packageName,
+        // Desativa todos os aliases
+        allAliases.forEach { aliasName ->
+            val component = ComponentName(context, aliasName)
+            pm.setComponentEnabledSetting(
+                component,
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                PackageManager.DONT_KILL_APP
+            )
+        }
+
+        // Ativa somente o alias desejado
+        val selectedAlias = ComponentName(
+            context,
             "com.sonicblue.myprojectwithleo.${getTeamActivityName(teamIconResourceId)}"
         )
-        packageManager.setComponentEnabledSetting(
-            teamIconComponent,
+        pm.setComponentEnabledSetting(
+            selectedAlias,
             PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
             PackageManager.DONT_KILL_APP
         )
