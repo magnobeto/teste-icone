@@ -3,52 +3,38 @@ package com.sonicblue.myprojectwithleo
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Handler
+import android.os.Looper
+import android.widget.Toast
 
 class IconManager {
 
-    private val allAliases = listOf(
-        "com.sonicblue.myprojectwithleo.DefaultIconActivity",
-        "com.sonicblue.myprojectwithleo.FlaIconActivity"
-        // Adicione mais aliases aqui, se tiver
-    )
-
-    fun setAppIcon(context: Context, teamIconResourceId: Int) {
+    fun setAppIcon(context: Context, aliasFullName: String) {
         val pm = context.packageManager
+        val packageName = context.packageName
 
-        // Desativa a MainActivity
-        val mainActivity = ComponentName(context, "com.sonicblue.myprojectwithleo.MainActivity")
-        pm.setComponentEnabledSetting(
-            mainActivity,
-            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-            PackageManager.DONT_KILL_APP
+        val allAliases = listOf(
+            "$packageName.DefaultIconActivity",
+            "$packageName.FlaIconActivity"
         )
 
-        // Desativa todos os aliases
-        allAliases.forEach { aliasName ->
-            val component = ComponentName(context, aliasName)
-            pm.setComponentEnabledSetting(
-                component,
-                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                PackageManager.DONT_KILL_APP
-            )
-        }
-
-        // Ativa somente o alias desejado
-        val selectedAlias = ComponentName(
-            context,
-            "com.sonicblue.myprojectwithleo.${getTeamActivityName(teamIconResourceId)}"
-        )
-        pm.setComponentEnabledSetting(
-            selectedAlias,
-            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-            PackageManager.DONT_KILL_APP
-        )
-    }
-
-    private fun getTeamActivityName(teamIconResourceId: Int): String {
-        return when (teamIconResourceId) {
-            R.drawable.ic_dev_tranquilao -> "FlaIconActivity"
-            else -> "DefaultIconActivity"
-        }
+        // Atrasamos a execução em 300ms.
+        // Isso dá tempo para o evento de clique ser processado e evita o fechamento imediato.
+        Handler(Looper.getMainLooper()).postDelayed({
+            allAliases.forEach { alias ->
+                val state = if (alias == aliasFullName) {
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                } else {
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+                }
+                pm.setComponentEnabledSetting(
+                    ComponentName(context, alias),
+                    state,
+                    PackageManager.DONT_KILL_APP
+                )
+            }
+            // Informa ao usuário que a mudança pode levar um momento.
+            Toast.makeText(context, "Ícone do app será atualizado.", Toast.LENGTH_SHORT).show()
+        }, 300) // 300 milissegundos de atraso
     }
 }

@@ -1,5 +1,7 @@
 package com.sonicblue.myprojectwithleo
 
+import android.content.ComponentName
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,48 +17,76 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.sonicblue.myprojectwithleo.ui.theme.MyProjectWithLeoTheme
 
 class MainActivity : ComponentActivity() {
+    private val iconManager = IconManager()
+    private val defaultIconAlias = "com.sonicblue.myprojectwithleo.DefaultIconActivity"
+    private val devIconAlias = "com.sonicblue.myprojectwithleo.FlaIconActivity"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val iconManager = IconManager()
+
+        // Garante que o ícone correto esteja ativo na inicialização do app
+        ensureCorrectIcon()
+
         setContent {
             MyProjectWithLeoTheme {
-                var isClicked by remember { mutableStateOf(false) }
+                // Lê a preferência salva para definir o estado inicial do botão
+                val savedAlias = IconPersistence.getSavedIconAlias(this)
+                var isDevIcon by remember {
+                    mutableStateOf(savedAlias == devIconAlias)
+                }
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
                         name = "Leo",
                         modifier = Modifier.padding(innerPadding),
                         onClick = {
-                            isClicked = !isClicked
-                            if (isClicked) {
-                                iconManager.setAppIcon(this, R.drawable.ic_dev_tranquilao)
-                            } else {
-                                iconManager.setAppIcon(this, R.drawable.ic_launcher_foreground)
-                            }
+                            // Alterna o estado
+                            isDevIcon = !isDevIcon
+
+                            val aliasToEnable = if (isDevIcon) devIconAlias else defaultIconAlias
+
+                            // 1. Salva a nova escolha permanentemente
+                            IconPersistence.saveIconAlias(this, aliasToEnable)
+
+                            // 2. Chama o método que troca o ícone com atraso
+                            iconManager.setAppIcon(this, aliasToEnable)
                         }
                     )
                 }
             }
         }
     }
+
+    private fun ensureCorrectIcon() {
+        // Esta função é útil caso o app seja fechado antes da troca ser completada.
+        // Na próxima vez que o usuário abrir, ela garante que o ícone correto será exibido.
+        val savedAlias = IconPersistence.getSavedIconAlias(this)
+        if (savedAlias != null) {
+            // Se houver uma preferência salva, chama o IconManager para garantir o estado.
+            // Atraso não é necessário aqui, pois não há interação de UI.
+            val pm = packageManager
+            val allAliases = listOf(defaultIconAlias, devIconAlias)
+            allAliases.forEach { alias ->
+                val state = if (alias == savedAlias) {
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                } else {
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+                }
+                pm.setComponentEnabledSetting(ComponentName(this, alias), state, PackageManager.DONT_KILL_APP)
+            }
+        }
+    }
 }
+
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
     Text(
-        text = "Hello $name!",
+        text = "Clique para trocar o ícone, $name!",
         modifier = modifier.clickable { onClick() }
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MyProjectWithLeoTheme {
-        Greeting("Android")
-    }
 }
