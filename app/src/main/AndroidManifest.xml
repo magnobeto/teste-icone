@@ -47,6 +47,20 @@
             </intent-filter>
         </activity-alias>
 
+        <!-- Alias alternativo -->
+        <activity-alias
+            android:name=".ChelseaIconActivity"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@drawable/ic_chelsea"
+            android:label="@string/app_name"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
     </application>
 
 </manifest>

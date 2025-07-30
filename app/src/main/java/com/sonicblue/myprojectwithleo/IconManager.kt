@@ -15,11 +15,10 @@ class IconManager {
 
         val allAliases = listOf(
             "$packageName.DefaultIconActivity",
-            "$packageName.FlaIconActivity"
+            "$packageName.FlaIconActivity",
+            "$packageName.ChelseaIconActivity"
         )
 
-        // Atrasamos a execução em 300ms.
-        // Isso dá tempo para o evento de clique ser processado e evita o fechamento imediato.
         Handler(Looper.getMainLooper()).postDelayed({
             allAliases.forEach { alias ->
                 val state = if (alias == aliasFullName) {
@@ -33,8 +32,7 @@ class IconManager {
                     PackageManager.DONT_KILL_APP
                 )
             }
-            // Informa ao usuário que a mudança pode levar um momento.
             Toast.makeText(context, "Ícone do app será atualizado.", Toast.LENGTH_SHORT).show()
-        }, 300) // 300 milissegundos de atraso
+        }, 300)
     }
 }
