@@ -32,7 +32,6 @@ class IconManager {
                     PackageManager.DONT_KILL_APP
                 )
             }
-            Toast.makeText(context, "Ícone do app será atualizado.", Toast.LENGTH_SHORT).show()
         }, 300)
     }
 }

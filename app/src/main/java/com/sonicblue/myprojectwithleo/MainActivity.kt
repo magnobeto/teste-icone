@@ -3,6 +3,7 @@ package com.sonicblue.myprojectwithleo
 import android.content.ComponentName
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -63,13 +64,28 @@ class MainActivity : ComponentActivity() {
 
                             // Salva a escolha permanentemente
                             IconPersistence.saveIconAlias(this, newAlias)
-
-                            // Troca o ícone do app com atraso
-                            iconManager.setAppIcon(this, newAlias)
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Ícone do app será atualizado.",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     )
                 }
             }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        val savedAlias = IconPersistence.getSavedIconAlias(this)
+        if (savedAlias != null) {
+            iconManager.setAppIcon(this, savedAlias)
+            Toast.makeText(
+                this@MainActivity,
+                "Atualizando ícone do app.",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -84,7 +100,11 @@ class MainActivity : ComponentActivity() {
                 } else {
                     PackageManager.COMPONENT_ENABLED_STATE_DISABLED
                 }
-                pm.setComponentEnabledSetting(ComponentName(this, alias), state, PackageManager.DONT_KILL_APP)
+                pm.setComponentEnabledSetting(
+                    ComponentName(this, alias),
+                    state,
+                    PackageManager.DONT_KILL_APP
+                )
             }
         }
     }
